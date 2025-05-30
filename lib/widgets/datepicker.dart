@@ -56,7 +56,7 @@ class _DatePickerExampleState extends State<DatePickerExample> {
         Expanded(
           child: TextField(
             controller: widget.dateController,
-            readOnly: widget.readOnly,
+            readOnly: true,
             decoration: InputDecoration(
               hintText: widget.title,
               filled: true,
@@ -65,7 +65,7 @@ class _DatePickerExampleState extends State<DatePickerExample> {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            onTap: widget.readOnly ? null : () => _selectDate(context), // Also allow tapping on field
+            onTap: widget.readOnly ? null : () => _selectDate(context), //allow tapping on field as per the conditions
           ),
         ),
       ],

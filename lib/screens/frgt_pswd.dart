@@ -27,57 +27,63 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         ),
         backgroundColor: const Color.fromARGB(255, 3, 30, 78),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              TextFieldWidget(
-                controller: emailController,
-                text: "Enter email for password recovery",
-                filled: false,
-              ),
-              SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: () async {
-                  setState(() {
-                    circular = true;
-                  });
-                  final String res = await Authentication().resetPassword(
-                    email: emailController.text.toString(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            
+            TextFieldWidget(
+              controller: emailController,
+              text: "Enter email for password recovery",
+              filled: false,
+            ),
+        
+            SizedBox(height: 15),
+        
+            ElevatedButton(
+              onPressed: () async {
+                setState(() {
+                  circular = true;
+                });
+                final String res = await Authentication().resetPassword(
+                  email: emailController.text.toString(),
+                );
+                setState(() {
+                  circular = false;
+                });
+                if (res == "Success") {
+                  SnackBar sb = SnackBar(
+                    content: Text("email has been sent"),
                   );
-                  setState(() {
-                    circular = false;
-                  });
-                  if (res == "Success") {
-                    SnackBar sb = SnackBar(
-                      content: Text("email has been sent"),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(sb);
-                    Navigator.pop(context);
-                  } else {
-                    SnackBar sb = SnackBar(content: Text(res));
-                    ScaffoldMessenger.of(context).showSnackBar(sb);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                  backgroundColor: const Color.fromARGB(255, 3, 30, 78),
-                  foregroundColor: Colors.blue,
-                ),
-                child:
-                    circular
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                          "Change Password",
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 133, 188, 232),
-                            fontSize: 23,
-                          ),
-                        ),
+                  ScaffoldMessenger.of(context).showSnackBar(sb);
+                  Navigator.pop(context);
+                } else {
+                  SnackBar sb = SnackBar(content: Text(res));
+                  ScaffoldMessenger.of(context).showSnackBar(sb);
+                }
+              },
+        
+        
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+                backgroundColor: const Color.fromARGB(255, 3, 30, 78),
+                foregroundColor: Colors.blue,
               ),
-            ],
-          ),
+        
+        
+              child:
+                  circular
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                        "Change Password",
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 133, 188, 232),
+                          fontSize: 23,
+                        ),
+                      ),
+            ),
+          ],
         ),
       ),
     );

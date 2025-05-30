@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:todo/firebase%20methods/database.dart';
 import 'package:todo/widgets/datepicker.dart';
 import 'package:todo/widgets/text_field.dart';
 
 class AddTodo extends StatefulWidget {
-  const AddTodo({super.key});
+  final bool isChecked;  //
+  const AddTodo({super.key,required this.isChecked});
 
   @override
   State<AddTodo> createState() => _AddTodoState();
@@ -13,17 +15,24 @@ class AddTodo extends StatefulWidget {
 class _AddTodoState extends State<AddTodo> {
   TextEditingController titleController = TextEditingController();
 
-  TextEditingController desciptionController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
 
   TextEditingController startDateController = TextEditingController();
 
   TextEditingController endDateController = TextEditingController();
-  DateTime _parseDate(String dateString) {
-    List<String> parts = dateString.split('/');
-    int day = int.parse(parts[0]);
-    int month = int.parse(parts[1]);
-    int year = int.parse(parts[2]);
-    return DateTime(year, month, day);
+
+  DateTime? _parseDate(String dateString) {
+    try {
+      List<String> parts = dateString.split('/');
+      if (parts.length != 3) return null;
+      int day = int.parse(parts[0]);
+      int month = int.parse(parts[1]);
+      int year = int.parse(parts[2]);
+      return DateTime(year, month, day);
+    } catch (e) {
+      print("Error parsing date: $e");
+      return null;
+    }
   }
 
   @override
@@ -43,13 +52,23 @@ class _AddTodoState extends State<AddTodo> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
+          child: KeyboardAvoider(
+            autoScroll: true,
             child: Padding(
               padding: const EdgeInsets.all(13.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: MediaQuery.of(context).size.height / 7),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height / 9),
                   Text(
                     "Create Your Todo :)",
                     style: TextStyle(
@@ -58,9 +77,9 @@ class _AddTodoState extends State<AddTodo> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
+            
                   SizedBox(height: 70),
-
+            
                   TextFieldWidget(
                     controller: titleController,
                     text: "Enter task title",
@@ -68,19 +87,18 @@ class _AddTodoState extends State<AddTodo> {
                   ),
                   SizedBox(height: 30),
                   TextFieldWidget(
-                    controller: desciptionController,
+                    controller: descriptionController,
                     text: "Enter task description",
                     filled: true,
                     lines: 6,
                   ),
-
+            
                   SizedBox(height: 30),
-
+            
                   Row(
                     children: [
                       Expanded(
                         child: DatePickerExample(
-                          
                           title: "Start date",
                           dateController: startDateController,
                         ),
@@ -88,35 +106,36 @@ class _AddTodoState extends State<AddTodo> {
                       SizedBox(width: 10),
                       Expanded(
                         child: DatePickerExample(
-                          
                           title: "End date",
                           dateController: endDateController,
                         ),
                       ),
                     ],
                   ),
-
+            
                   SizedBox(height: 70),
-
+            
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       final title = titleController.text;
-                      final description = desciptionController.text;
+                      final description = descriptionController.text;
                       final startDate = _parseDate(startDateController.text);
                       final endDate = _parseDate(endDateController.text);
-                      if (title.isNotEmpty) {
-                        FireStoreDatabase().addData(
+                      if (title.isNotEmpty &&
+                          startDate != null &&
+                          endDate != null) {
+                        await FireStoreDatabase().addData(
                           title: title,
                           description: description,
                           startDate: startDate,
-                          endDate: endDate,
+                          endDate: endDate, 
+                          isChecked: widget.isChecked, /** */
                         );
+                        print("Data added successfully");
                         Navigator.pop(context);
                       } else {
                         final sb = SnackBar(
-                          content: Text(
-                            "Kinldy fill the title and field atleast :/",
-                          ),
+                          content: Text("Kinldy fill the necessary fields :/"),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(sb);
                       }
@@ -131,6 +150,7 @@ class _AddTodoState extends State<AddTodo> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
+            
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(

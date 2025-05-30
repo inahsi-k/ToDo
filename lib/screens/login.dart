@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:todo/firebase%20methods/authentication.dart';
 import 'package:todo/screens/frgt_pswd.dart';
 import 'package:todo/screens/home.dart';
@@ -25,15 +26,16 @@ class _LoginState extends State<Login> {
     Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: true, 
         body: SizedBox(
           width: size.width,
           height: size.height,
           child: Stack(
             children: [
-              Container(
+              SizedBox(
                 height: size.height / 2.4,
                 width: double.infinity,
-                color: Colors.amber,
+                //color: Colors.amber,
                 child: Image.asset("assets/6871753.jpg", fit: BoxFit.cover),
               ),
               Positioned(
@@ -41,7 +43,8 @@ class _LoginState extends State<Login> {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                child: SingleChildScrollView(
+                child: KeyboardAvoider(
+                  autoScroll: true,
                   child: Container(
                     height: size.height,
                     width: double.infinity,

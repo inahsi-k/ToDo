@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:todo/firebase%20methods/authentication.dart';
+import 'package:todo/screens/home.dart';
 
 class CircularIconButton extends StatelessWidget {
   final String imagePath;
@@ -7,7 +9,17 @@ class CircularIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){},
+      onTap: ()async{
+        String res = await Authentication().signInWithGoogle();
+        if (res == 'Success') {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => Home()),
+            (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res)));
+        }
+      },
       child: Container(
         width: 50,
         height: 50,

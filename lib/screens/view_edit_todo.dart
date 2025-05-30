@@ -1,54 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:todo/firebase%20methods/database.dart';
-import 'package:todo/screens/home.dart';
 import 'package:todo/widgets/datepicker.dart';
 import 'package:todo/widgets/text_field.dart';
 
-class AddTodo extends StatefulWidget {
+class ViewEditTodo extends StatefulWidget {
   final String? title;
   final String? description;
-  final String? startDate;
-  final String? endDate;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final String? docId;
+  final bool? isChecked;
 
-  const AddTodo({
+  const ViewEditTodo({
     super.key,
     required this.description,
     required this.docId,
     required this.endDate,
     required this.startDate,
     required this.title,
+    required this.isChecked
   });
 
   @override
-  State<AddTodo> createState() => _AddTodoState();
+  State<ViewEditTodo> createState() => _ViewEditTodoState();
 }
 
-class _AddTodoState extends State<AddTodo> {
+class _ViewEditTodoState extends State<ViewEditTodo> {
   TextEditingController titleController = TextEditingController();
-  TextEditingController desciptionController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   TextEditingController startDateController = TextEditingController();
   TextEditingController endDateController = TextEditingController();
 
   bool isEditing = false;
 
-  DateTime _parseDate(String dateString) {
-    List<String> parts = dateString.split('/');
-    int day = int.parse(parts[0]);
-    int month = int.parse(parts[1]);
-    int year = int.parse(parts[2]);
-    return DateTime(year, month, day);
+  DateTime? _parseDate(String dateString) {
+    try {
+      List<String> parts = dateString.split('/');
+      if (parts.length != 3) return null;
+      int day = int.parse(parts[0]);
+      int month = int.parse(parts[1]);
+      int year = int.parse(parts[2]);
+      return DateTime(year, month, day);
+    } catch (e) {
+      print("Error parsing date: $e");
+      return null;
+    }
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     titleController.text = widget.title ?? '';
-    desciptionController.text = widget.description ?? '';
-    startDateController.text = widget.startDate ?? '';
-    endDateController.text = widget.endDate ?? '';
-    
+    descriptionController.text = widget.description ?? '';
+    // startDateController.text = widget.startDate ?? '';
+    // endDateController.text = widget.endDate ?? '';
+    if (widget.startDate != null) {
+      startDateController.text = DateFormat(
+        'dd/MM/yyyy',
+      ).format(widget.startDate!);
+    }
+
+    if (widget.endDate != null) {
+      endDateController.text = DateFormat('dd/MM/yyyy').format(widget.endDate!);
+    }
   }
 
   @override
@@ -73,22 +90,39 @@ class _AddTodoState extends State<AddTodo> {
               padding: const EdgeInsets.all(13.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                
-                children: [
 
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(onPressed: (){
-                       setState(() {
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          // Navigator.pop(context);
+                          if (isEditing == false) {
+                            Navigator.pop(context);
+                          } else {
+                            setState(() {
+                              isEditing = false;
+                            });
+                          }
+                        },
+                        icon: Icon(Icons.arrow_back, color: Colors.white),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
                             isEditing = true;
                           });
-                    }, icon: Icon(Icons.edit)),
+                        },
+                        icon: Icon(Icons.edit, color: Colors.white),
+                      ),
+                    ],
                   ),
 
-                  SizedBox(height: MediaQuery.of(context).size.height / 7),
+                  SizedBox(height: MediaQuery.of(context).size.height / 9),
 
                   Text(
-                    isEditing?"Edit your todo":"View Your Todo :)",
+                    isEditing ? "Edit your todo" : "View Your Todo :)",
                     style: TextStyle(
                       fontSize: 40,
                       color: Colors.white,
@@ -106,7 +140,7 @@ class _AddTodoState extends State<AddTodo> {
                   ),
                   SizedBox(height: 30),
                   TextFieldWidget(
-                    controller: desciptionController,
+                    controller: descriptionController,
                     text: "Enter task description",
                     filled: true,
                     lines: 6,
@@ -137,70 +171,79 @@ class _AddTodoState extends State<AddTodo> {
 
                   SizedBox(height: 70),
 
-                  isEditing==false
-                  ?Container()
-                  :ElevatedButton(
-                    onPressed: () {
-                      final title = titleController.text;
-                      final description = desciptionController.text;
-                      final startDate = _parseDate(startDateController.text);
-                      final endDate = _parseDate(endDateController.text);
-                      if (title.isNotEmpty) {
-                        FireStoreDatabase().addData(
-                          title: title,
-                          description: description,
-                          startDate: startDate,
-                          endDate: endDate,
-                        );
-                        Navigator.pop(context);
-                      } else {
-                        final sb = SnackBar(
-                          content: Text(
-                            "Kinldy fill the title and field atleast :/",
-                          ),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(sb);
-                      }
-                      // FireStoreDatabase.;
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 55),
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blue, Colors.purple],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Container(
-                        alignment: Alignment.center,
-                        constraints: BoxConstraints(
-                          minWidth: double.infinity,
-                          minHeight: 55,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(width: 8),
-                            Text(
-                              "Create",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
+                  isEditing == false
+                      ? Container()
+                      : ElevatedButton(
+                        onPressed: () async {
+                          final title = titleController.text;
+                          final description = descriptionController.text;
+                          final startDate = _parseDate(
+                            startDateController.text,
+                          );
+                          final endDate = _parseDate(endDateController.text);
+
+                          if (title.isNotEmpty &&
+                              startDate != null &&
+                              endDate != null) {
+                            if (widget.docId != null) {
+                              await FireStoreDatabase().updateData(
+                                title: title,
+                                description: description,
+                                startDate: startDate,
+                                endDate: endDate,
+                                docId: widget.docId!,
+                                isChecked: widget.isChecked??false,
+                              );
+                              Navigator.pop(context);
+                            }
+                          } else {
+                            final sb = SnackBar(
+                              content: Text(
+                                "Kinldy fill the title field atleast :/",
                               ),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(sb);
+                          }
+                          // FireStoreDatabase.;
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(double.infinity, 55),
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.blue, Colors.purple],
                             ),
-                          ],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            constraints: BoxConstraints(
+                              minWidth: double.infinity,
+                              minHeight: 55,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(width: 8),
+                                Text(
+                                  "Edit",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
                 ],
               ),
             ),

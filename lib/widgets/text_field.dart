@@ -20,6 +20,8 @@ class TextFieldWidget extends StatelessWidget {
     return TextField(
       controller: controller,
       maxLines: lines,
+      readOnly: readOnly,
+      cursorColor: readOnly ? Colors.transparent : null,   // hide blinking cursor in view mode
       decoration: InputDecoration(
         filled: filled,
         fillColor: Colors.white,

@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
 import 'package:todo/firebase%20methods/authentication.dart';
+import 'package:todo/firebase%20methods/database.dart';
 import 'package:todo/screens/home.dart';
 import 'package:todo/screens/login.dart';
 import 'package:todo/widgets/circular_icon.dart';
@@ -21,21 +24,19 @@ class _SignupState extends State<Signup> {
 
   @override
   Widget build(BuildContext context) {
-    
-    
-
     Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: true, 
         body: SizedBox(
           width: size.width,
           height: size.height,
           child: Stack(
             children: [
-              Container(
+              SizedBox(
                 height: size.height / 2.4,
                 width: double.infinity,
-                color: Colors.amber,
+                //color: Colors.amber,
                 child: Image.asset("assets/6871753.jpg", fit: BoxFit.cover),
               ),
               Positioned(
@@ -43,7 +44,8 @@ class _SignupState extends State<Signup> {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                child: SingleChildScrollView(
+                child: KeyboardAvoider(
+                  autoScroll: true,
                   child: Container(
                     height: size.height,
                     width: double.infinity,
@@ -76,26 +78,28 @@ class _SignupState extends State<Signup> {
                           TextFieldWidget(
                             controller: nameController,
                             text: "Enter your name",
-                            filled:false
+                            filled: false,
                           ),
                           SizedBox(height: 15),
                           TextFieldWidget(
                             controller: emailController,
                             text: "Enter your email",
-                            filled:false
-
+                            filled: false,
                           ),
                           SizedBox(height: 15),
                           TextFieldWidget(
                             controller: passwordController,
                             text: "Enter password",
-                            filled:false
-
+                            filled: false,
                           ),
                           SizedBox(height: 5),
-                          
+                  
                           SizedBox(height: 15),
-                          Button(emailController: emailController, passwordController: passwordController),
+                          Button(
+                            nameController: nameController,
+                            emailController: emailController,
+                            passwordController: passwordController,
+                          ),
                           SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -153,32 +157,46 @@ class _SignupState extends State<Signup> {
 class Button extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  const Button({super.key,required this.emailController,required this.passwordController});
+  final TextEditingController nameController;
+  const Button({
+    super.key,
+    required this.emailController,
+    required this.passwordController,
+    required this.nameController,
+  });
 
   @override
   State<Button> createState() => _ButtonState();
 }
 
 class _ButtonState extends State<Button> {
-  bool circular=false;
+  bool circular = false;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: ()async{
+      onPressed: () async {
+        
         setState(() {
-          circular=true;
+          circular = true;
         });
         String res = await Authentication().signup(
           email: widget.emailController.text,
           password: widget.passwordController.text,
         );
+        
         setState(() {
-          circular=false;
+          circular = false;
         });
         if (res == 'Success') {
-          Navigator.of(
-            context,
-          ).pushAndRemoveUntil(MaterialPageRoute(builder:(context)=>Home()),(route)=>false);
+          await FirebaseFirestore.instance
+            .collection('todo')
+            .doc(FireStoreDatabase().user)
+            .set({"name": widget.nameController.text});
+
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => Home()),
+            (route) => false,
+          );
         } else {
           SnackBar sb = SnackBar(content: Text(res));
           ScaffoldMessenger.of(context).showSnackBar(sb);
