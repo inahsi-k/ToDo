@@ -95,6 +95,7 @@ class _ViewEditTodoState extends State<ViewEditTodo> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      
                       IconButton(
                         onPressed: () {
                           // Navigator.pop(context);
@@ -108,7 +109,10 @@ class _ViewEditTodoState extends State<ViewEditTodo> {
                         },
                         icon: Icon(Icons.arrow_back, color: Colors.white),
                       ),
-                      IconButton(
+
+                      isEditing
+                      ?Container()
+                      :IconButton(
                         onPressed: () {
                           setState(() {
                             isEditing = true;
@@ -119,18 +123,18 @@ class _ViewEditTodoState extends State<ViewEditTodo> {
                     ],
                   ),
 
-                  SizedBox(height: MediaQuery.of(context).size.height / 9),
+                  SizedBox(height: MediaQuery.of(context).size.height / 12),
 
                   Text(
                     isEditing ? "Edit your todo" : "View Your Todo :)",
                     style: TextStyle(
-                      fontSize: 40,
+                      fontSize: 35,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  SizedBox(height: 70),
+                  SizedBox(height: 60),
 
                   TextFieldWidget(
                     controller: titleController,
@@ -169,7 +173,7 @@ class _ViewEditTodoState extends State<ViewEditTodo> {
                     ],
                   ),
 
-                  SizedBox(height: 70),
+                  SizedBox(height: 60),
 
                   isEditing == false
                       ? Container()

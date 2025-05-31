@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:todo/firebase%20methods/database.dart';
 import 'package:todo/screens/add_todo.dart';
 import 'package:todo/screens/login.dart';
@@ -16,7 +15,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int index =0;
+  int index = 0;
   Map<String, bool> checkedStatus = {};
   String? selectedDocId;
 
@@ -76,6 +75,7 @@ class _HomeState extends State<Home> {
         ),
         backgroundColor: const Color.fromARGB(255, 3, 30, 78),
       ),
+
       body: StreamBuilder<QuerySnapshot>(
         stream: FireStoreDatabase().getData(),
         builder: (context, snapshot) {
@@ -93,10 +93,8 @@ class _HomeState extends State<Home> {
           }
 
           final todos = snapshot.data!.docs; //  yeh saare todos ki list hai
-          
 
           return ListView.builder(
-
             itemCount: todos.length,
             itemBuilder: (context, index) {
               final docId = todos[index].id;
@@ -133,10 +131,9 @@ class _HomeState extends State<Home> {
                             endDate:
                                 (todo["endDate"] as Timestamp?)?.toDate() ??
                                 DateTime.now(),
-
                             title: todo["title"] ?? "No title",
-                            docId: docId, 
-                            isChecked:checkedStatus[selectedDocId]??false ,
+                            docId: docId,
+                            isChecked: checkedStatus[selectedDocId] ?? false,
                           ),
                     ),
                   );
@@ -151,8 +148,12 @@ class _HomeState extends State<Home> {
                       onChanged: (bool? value) {
                         setState(() {
                           selectedDocId = docId;
-                          checkedStatus[docId] = value??false;
+                          checkedStatus[docId] = value ?? false;
                         });
+                        FireStoreDatabase().updateCheckBox(
+                          docId: docId,
+                          isChecked: value ?? false,
+                        );
                       },
                     ),
 
@@ -214,42 +215,15 @@ class _HomeState extends State<Home> {
         },
       ),
 
-      // Padding(
-      //   padding: const EdgeInsets.all(8.0),
-      //   child: ListView.builder(
-      //     itemCount: 5,
-      //     itemBuilder: (context, index) {
-      //       return Card(
-      //         elevation: 3,
-      //         child: ListTile(
-      //           tileColor: const Color.fromARGB(255, 151, 193, 227),
-      //           leading: Checkbox(
-      //             activeColor: const Color.fromARGB(255, 3, 30, 78),
-      //             value: isChecked,
-      //             onChanged: (bool? value) {
-      //               setState(() {
-      //                 isChecked = value!;
-      //               });
-      //             },
-      //           ),
-      //           title: Text("hi"),
-      //           subtitle: Text("this is just for test purpose"),
-      //           trailing: IconButton(
-      //             onPressed: () {},
-      //             icon: Icon(Icons.delete),
-      //           ),
-      //         ),
-      //       );
-      //     },
-      //   ),
-      // ),
       floatingActionButton: FloatingActionButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(29)),
         backgroundColor: const Color.fromARGB(255, 3, 30, 78),
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => AddTodo(isChecked: checkedStatus[selectedDocId]??false ),
+              builder:
+                  (context) =>
+                      AddTodo(isChecked: checkedStatus[selectedDocId] ?? false),
             ),
           );
         },

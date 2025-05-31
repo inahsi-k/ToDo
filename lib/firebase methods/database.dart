@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class FireStoreDatabase {
   FirebaseFirestore fire = FirebaseFirestore.instance;
@@ -12,25 +13,22 @@ class FireStoreDatabase {
     required String description,
     required DateTime startDate,
     required DateTime endDate,
-    required bool isChecked, /** */
+    required bool isChecked,
+    /** */
   }) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       throw Exception('User not logged in');
     }
-    await fire
-        .collection('todo')
-        .doc(user)
-        .collection('user_todos')
-        .add({
-          "title": title,
-          "description": description,
-          "startDate": startDate,
-          "endDate": endDate,
-          "isChecked":isChecked, /** */
-          "createdAt": DateTime.now(),
-        });
-    
+    await fire.collection('todo').doc(user).collection('user_todos').add({
+      "title": title,
+      "description": description,
+      "startDate": startDate,
+      "endDate": endDate,
+      "isChecked": isChecked,
+      /** */
+      "createdAt": DateTime.now(),
+    });
   }
 
   //Read
@@ -48,7 +46,8 @@ class FireStoreDatabase {
     required String description,
     required DateTime startDate,
     required DateTime endDate,
-    required bool isChecked, /** */
+    required bool isChecked,
+    /** */
     required String docId,
   }) async {
     await fire
@@ -60,9 +59,29 @@ class FireStoreDatabase {
           "title": title,
           "description": description,
           "startDate": startDate,
-          "isChecked":isChecked, /** */
+          "isChecked": isChecked,
+          /** */
           "endDate": endDate,
         });
+  }
+
+  //Updating checkbox
+  Future<void> updateCheckBox({
+    required String docId,
+    required bool isChecked,
+  }) async {
+    try {
+      fire
+          .collection("todo")
+          .doc(user)
+          .collection('user_todos')
+          .doc(docId)
+          .update({isChecked: isChecked});
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error updating isChecked: $e");
+      }
+    }
   }
 
   //Delete

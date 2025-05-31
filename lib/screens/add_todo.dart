@@ -58,7 +58,9 @@ class _AddTodoState extends State<AddTodo> {
               padding: const EdgeInsets.all(13.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                
                 children: [
+
                   Align(
                     alignment: Alignment.topLeft,
                     child: IconButton(
@@ -68,24 +70,28 @@ class _AddTodoState extends State<AddTodo> {
                       icon: Icon(Icons.arrow_back, color: Colors.white),
                     ),
                   ),
-                  SizedBox(height: MediaQuery.of(context).size.height / 9),
+
+                  SizedBox(height: MediaQuery.of(context).size.height / 12),
+
                   Text(
                     "Create Your Todo :)",
                     style: TextStyle(
-                      fontSize: 40,
+                      fontSize: 35,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
             
-                  SizedBox(height: 70),
+                  SizedBox(height: 60),
             
                   TextFieldWidget(
                     controller: titleController,
                     text: "Enter task title",
                     filled: true,
                   ),
+
                   SizedBox(height: 30),
+
                   TextFieldWidget(
                     controller: descriptionController,
                     text: "Enter task description",
@@ -103,7 +109,9 @@ class _AddTodoState extends State<AddTodo> {
                           dateController: startDateController,
                         ),
                       ),
+
                       SizedBox(width: 10),
+
                       Expanded(
                         child: DatePickerExample(
                           title: "End date",
@@ -113,9 +121,10 @@ class _AddTodoState extends State<AddTodo> {
                     ],
                   ),
             
-                  SizedBox(height: 70),
+                  SizedBox(height: 60),
             
                   ElevatedButton(
+
                     onPressed: () async {
                       final title = titleController.text;
                       final description = descriptionController.text;
@@ -139,7 +148,7 @@ class _AddTodoState extends State<AddTodo> {
                         );
                         ScaffoldMessenger.of(context).showSnackBar(sb);
                       }
-                      // FireStoreDatabase.;
+
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(double.infinity, 55),
